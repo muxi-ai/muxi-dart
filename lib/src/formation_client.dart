@@ -74,6 +74,7 @@ class FormationClient {
   Future<Map<String, dynamic>?> chat(Map<String, dynamic> payload, {String userId = ''}) async => await _transport.request('POST', '/chat', body: payload, useAdmin: false, userId: userId);
   Stream<SseEvent> chatStream(Map<String, dynamic> payload, {String userId = ''}) => _transport.streamSse('POST', '/chat', body: {...payload, 'stream': true}, useAdmin: false, userId: userId);
   Future<Map<String, dynamic>?> audioChat(Map<String, dynamic> payload, {String userId = ''}) async => await _transport.request('POST', '/audiochat', body: payload, useAdmin: false, userId: userId);
+  Stream<SseEvent> audioChatStream(Map<String, dynamic> payload, {String userId = ''}) => _transport.streamSse('POST', '/audiochat', body: {...payload, 'stream': true}, useAdmin: false, userId: userId);
 
   // Sessions
   Future<Map<String, dynamic>?> getSessions(String userId, {int? limit}) async => await _transport.request('GET', '/sessions', params: {'user_id': userId, if (limit != null) 'limit': limit}, useAdmin: false, userId: userId);
