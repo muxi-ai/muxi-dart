@@ -11,7 +11,7 @@ class VersionCheck {
     if (_checked) return;
     _checked = true;
 
-    if (!_isDevMode()) return;
+    if (_notificationsDisabled()) return;
 
     final latest = headers['x-muxi-sdk-latest'] ?? headers['X-Muxi-SDK-Latest'];
     if (latest == null) return;
@@ -27,7 +27,7 @@ class VersionCheck {
     }
   }
 
-  static bool _isDevMode() => Platform.environment['MUXI_DEBUG'] == '1';
+  static bool _notificationsDisabled() => Platform.environment['MUXI_SDK_VERSION_NOTIFICATION'] == '0';
 
   static File? _getCacheFile() {
     final home = Platform.environment['HOME'];
