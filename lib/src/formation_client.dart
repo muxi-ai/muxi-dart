@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'errors.dart';
 import 'version.dart';
+import 'version_check.dart';
 import 'server_client.dart';
 
 class FormationConfig {
@@ -16,6 +17,7 @@ class FormationConfig {
   final int maxRetries;
   final int timeout;
   final bool debug;
+  final String? app;  // Internal: for Console telemetry
 
   FormationConfig({
     this.formationId,
@@ -27,6 +29,7 @@ class FormationConfig {
     this.maxRetries = 0,
     this.timeout = 30,
     this.debug = false,
+    this.app,
   });
 }
 
@@ -40,6 +43,7 @@ class FormationClient {
     timeout: config.timeout,
     maxRetries: config.maxRetries,
     debug: config.debug,
+    app: config.app,
   );
 
   static String _buildBaseUrl(FormationConfig c) {
@@ -155,6 +159,7 @@ class _FormationTransport {
   final int timeout;
   final int maxRetries;
   final bool debug;
+  final String? app;
   final http.Client _client;
 
   _FormationTransport({
@@ -164,6 +169,7 @@ class _FormationTransport {
     this.timeout = 30,
     this.maxRetries = 0,
     this.debug = false,
+    this.app,
   }) : _client = http.Client();
 
   Future<Map<String, dynamic>?> request(String method, String path, {Map<String, dynamic>? params, dynamic body, bool useAdmin = true, String userId = ''}) async {
@@ -176,6 +182,9 @@ class _FormationTransport {
 
     final streamedResponse = await _client.send(request).timeout(Duration(seconds: timeout));
     final response = await http.Response.fromStream(streamedResponse);
+
+    // Check for SDK updates (non-blocking, once per process)
+    VersionCheck.checkForUpdates(response.headers);
 
     if (response.statusCode >= 400) {
       String? code;
@@ -237,6 +246,7 @@ class _FormationTransport {
       'X-Muxi-Idempotency-Key': DateTime.now().millisecondsSinceEpoch.toString(),
       'Accept': accept,
     };
+    if (app != null && app!.isNotEmpty) headers['X-Muxi-App'] = app!;
     if (useAdmin) headers['X-MUXI-ADMIN-KEY'] = adminKey ?? (throw ArgumentError('admin key required'));
     else headers['X-MUXI-CLIENT-KEY'] = clientKey ?? (throw ArgumentError('client key required'));
     if (userId.isNotEmpty) headers['X-Muxi-User-ID'] = userId;

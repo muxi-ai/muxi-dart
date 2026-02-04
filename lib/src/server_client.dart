@@ -8,6 +8,7 @@ class ServerConfig {
   final int maxRetries;
   final int timeout;
   final bool debug;
+  final String? app;  // Internal: for Console telemetry
 
   ServerConfig({
     required this.url,
@@ -16,6 +17,7 @@ class ServerConfig {
     this.maxRetries = 0,
     this.timeout = 30,
     this.debug = false,
+    this.app,
   });
 }
 
@@ -35,6 +37,7 @@ class ServerClient {
     timeout: config.timeout,
     maxRetries: config.maxRetries,
     debug: config.debug,
+    app: config.app,
   );
 
   // Unauthenticated

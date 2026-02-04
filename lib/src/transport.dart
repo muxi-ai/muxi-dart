@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'auth.dart';
 import 'errors.dart';
 import 'version.dart';
+import 'version_check.dart';
 
 class Transport {
   static const _retryStatuses = {429, 500, 502, 503, 504};
@@ -15,6 +16,7 @@ class Transport {
   final int timeout;
   final int maxRetries;
   final bool debug;
+  final String? app;
   final http.Client _client;
 
   Transport({
@@ -24,6 +26,7 @@ class Transport {
     this.timeout = 30,
     this.maxRetries = 0,
     this.debug = false,
+    this.app,
   }) : _client = http.Client();
 
   Future<dynamic> requestJson(String method, String path, {Map<String, dynamic>? params, dynamic body}) async {
@@ -47,6 +50,9 @@ class Transport {
         final response = await http.Response.fromStream(streamedResponse);
         final elapsed = DateTime.now().difference(startTime).inMilliseconds / 1000;
         _log('$method $fullPath -> ${response.statusCode} (${elapsed.toStringAsFixed(3)}s)');
+
+        // Check for SDK updates (non-blocking, once per process)
+        VersionCheck.checkForUpdates(response.headers);
 
         if (response.statusCode >= 400) {
           final retryAfter = int.tryParse(response.headers['retry-after'] ?? '');
@@ -134,14 +140,18 @@ class Transport {
     return ('${baseUrl.replaceAll(RegExp(r'/+$'), '')}$fullPath', fullPath);
   }
 
-  Map<String, String> _buildHeaders(String method, String path, {String accept = 'application/json'}) => {
-    'Authorization': Auth.buildAuthHeader(keyId, secretKey, method, path),
-    'Content-Type': 'application/json',
-    'Accept': accept,
-    'X-Muxi-SDK': 'dart/$muxiVersion',
-    'X-Muxi-Client': 'dart/${Platform.version.split(' ').first}',
-    'X-Muxi-Idempotency-Key': _generateUuid(),
-  };
+  Map<String, String> _buildHeaders(String method, String path, {String accept = 'application/json'}) {
+    final headers = {
+      'Authorization': Auth.buildAuthHeader(keyId, secretKey, method, path),
+      'Content-Type': 'application/json',
+      'Accept': accept,
+      'X-Muxi-SDK': 'dart/$muxiVersion',
+      'X-Muxi-Client': 'dart/${Platform.version.split(' ').first}',
+      'X-Muxi-Idempotency-Key': _generateUuid(),
+    };
+    if (app != null && app!.isNotEmpty) headers['X-Muxi-App'] = app!;
+    return headers;
+  }
 
   dynamic _unwrapEnvelope(dynamic obj) {
     if (obj is! Map<String, dynamic> || !obj.containsKey('data')) return obj;
