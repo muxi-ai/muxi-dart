@@ -17,6 +17,7 @@ class FormationConfig {
   final int maxRetries;
   final int timeout;
   final bool debug;
+  final String mode;  // "live" (default) or "draft" for local dev
   final String? app;  // Internal: for Console telemetry
 
   FormationConfig({
@@ -29,6 +30,7 @@ class FormationConfig {
     this.maxRetries = 0,
     this.timeout = 30,
     this.debug = false,
+    this.mode = 'live',
     this.app,
   });
 }
@@ -50,7 +52,8 @@ class FormationClient {
     if (c.baseUrl != null && c.baseUrl!.isNotEmpty) return c.baseUrl!.replaceAll(RegExp(r'/+$'), '');
     if (c.url != null && c.url!.isNotEmpty) return '${c.url!.replaceAll(RegExp(r'/+$'), '')}/v1';
     if (c.serverUrl != null && c.serverUrl!.isNotEmpty && c.formationId != null && c.formationId!.isNotEmpty) {
-      return '${c.serverUrl!.replaceAll(RegExp(r'/+$'), '')}/api/${c.formationId}/v1';
+      final prefix = c.mode == 'draft' ? 'draft' : 'api';
+      return '${c.serverUrl!.replaceAll(RegExp(r'/+$'), '')}/$prefix/${c.formationId}/v1';
     }
     throw ArgumentError('must set baseUrl, url, or serverUrl+formationId');
   }
