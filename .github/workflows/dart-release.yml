@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Dart
-        uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # v1
+        uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # v1
 
       - name: Install dependencies
         run: dart pub get
@@ -70,7 +70,7 @@ jobs:
           token: ${{ secrets.MUXI_RELEASE_TOKEN }}
 
       - name: Set up Dart
-        uses: dart-lang/setup-dart@e630b99d28a3b71860378cafdc2a067c71107f94 # v1
+        uses: dart-lang/setup-dart@e51d8e571e22473a2ddebf0ef8a2123f0ab2c02c # v1
 
       - name: Compute next version
         id: version
