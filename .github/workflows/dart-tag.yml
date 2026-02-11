@@ -1,0 +1,56 @@
+name: Dart SDK Tag
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  tag:
+    if: "!startsWith(github.event.head_commit.message, 'chore:')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.MUXI_RELEASE_TOKEN }}
+
+      - name: Compute next version
+        id: version
+        run: |
+          # Get current version from pubspec.yaml
+          current=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+          major=$(echo "$current" | cut -d. -f1)
+          
+          # Get today's date
+          today=$(date -u +%Y%m%d)
+          
+          # Find latest tag for today to determine patch number
+          latest_tag=$(git tag -l "v${major}.${today}.*" | sort -V | tail -1)
+          if [ -n "$latest_tag" ]; then
+            latest_patch=$(echo "$latest_tag" | sed "s/v${major}.${today}.//" )
+            nextpatch=$((latest_patch + 1))
+          else
+            nextpatch=0
+          fi
+          
+          next="${major}.${today}.${nextpatch}"
+          echo "version=$next" >> $GITHUB_OUTPUT
+          echo "Computed version: $next"
+
+      - name: Update version in source
+        run: |
+          sed -i "s/^version: .*/version: ${{ steps.version.outputs.version }}/" pubspec.yaml
+          sed -i "s/muxiVersion = '.*'/muxiVersion = '${{ steps.version.outputs.version }}'/" lib/src/version.dart
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pubspec.yaml lib/src/version.dart
+          git commit -m "chore: bump version to ${{ steps.version.outputs.version }}"
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin main --tags
