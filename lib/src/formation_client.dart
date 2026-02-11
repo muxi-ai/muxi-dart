@@ -258,17 +258,19 @@ class _FormationTransport {
   }
 
   Map<String, dynamic>? _unwrapEnvelope(dynamic obj) {
-    if (obj is! Map<String, dynamic> || !obj.containsKey('data')) return obj;
+    if (obj is! Map<String, dynamic> || !obj.containsKey('data')) {
+      return obj is Map<String, dynamic> ? obj : null;
+    }
     final req = obj['request'] as Map<String, dynamic>?;
     final requestId = req?['id'] ?? obj['request_id'];
     final data = obj['data'];
     if (data is Map<String, dynamic>) {
       final out = Map<String, dynamic>.from(data);
       if (requestId != null) out['request_id'] ??= requestId;
-      obj['timestamp']?.let((ts) => out['timestamp'] ??= ts);
+      if (obj['timestamp'] != null) out['timestamp'] ??= obj['timestamp'];
       return out;
     }
-    return data ?? obj;
+    return data is Map<String, dynamic> ? data : obj;
   }
 
   void close() => _client.close();

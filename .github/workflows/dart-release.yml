@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      MUXI_SDK_E2E_SERVER_URL: ${{ secrets.MUXI_SDK_E2E_SERVER_URL }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
         with:
@@ -28,10 +30,31 @@ jobs:
       - name: Install dependencies
         run: dart pub get
 
-      - name: Analyze and test
+      - name: Analyze and unit test
         run: |
           dart analyze
           dart test
+
+      - name: Require test server
+        run: |
+          if [ -z "$MUXI_SDK_E2E_SERVER_URL" ]; then
+            echo "::error::MUXI_SDK_E2E_SERVER_URL secret is not set"
+            exit 1
+          fi
+          if ! curl -sf --max-time 10 "${MUXI_SDK_E2E_SERVER_URL}/ping" >/dev/null 2>&1 && \
+             ! curl -sf --max-time 10 "${MUXI_SDK_E2E_SERVER_URL}" >/dev/null 2>&1; then
+            echo "::error::Test server is not reachable at ${MUXI_SDK_E2E_SERVER_URL}"
+            exit 1
+          fi
+
+      - name: Integration tests
+        env:
+          MUXI_SDK_E2E_KEY_ID: ${{ secrets.MUXI_SDK_E2E_KEY_ID }}
+          MUXI_SDK_E2E_SECRET_KEY: ${{ secrets.MUXI_SDK_E2E_SECRET_KEY }}
+          MUXI_SDK_E2E_FORMATION_ID: ${{ secrets.MUXI_SDK_E2E_FORMATION_ID }}
+          MUXI_SDK_E2E_CLIENT_KEY: ${{ secrets.MUXI_SDK_E2E_CLIENT_KEY }}
+          MUXI_SDK_E2E_ADMIN_KEY: ${{ secrets.MUXI_SDK_E2E_ADMIN_KEY }}
+        run: dart test test/integration_test.dart
 
   release:
     if: "!startsWith(github.event.head_commit.message, 'chore: release')"
@@ -69,6 +92,9 @@ jobs:
         run: |
           sed -i "s/^version: .*/version: ${{ steps.version.outputs.version }}/" pubspec.yaml
           sed -i "s/muxiVersion = '.*'/muxiVersion = '${{ steps.version.outputs.version }}'/" lib/src/version.dart
+
+      - name: Publish to pub.dev
+        run: dart pub publish --force
 
       - name: Commit version bump
         run: |

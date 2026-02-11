@@ -16,12 +16,12 @@ class VersionCheck {
     final latest = headers['x-muxi-sdk-latest'] ?? headers['X-Muxi-SDK-Latest'];
     if (latest == null) return;
 
-    if (!_isNewerVersion(latest, version)) return;
+    if (!_isNewerVersion(latest, muxiVersion)) return;
 
     _updateLatestVersion(latest);
 
     if (!_notifiedRecently()) {
-      stderr.writeln('[muxi] SDK update available: $latest (current: $version)');
+      stderr.writeln('[muxi] SDK update available: $latest (current: $muxiVersion)');
       stderr.writeln('[muxi] Run: dart pub upgrade muxi');
       _markNotified();
     }
@@ -75,7 +75,7 @@ class VersionCheck {
     final entry = (cache[_sdkName] as Map<String, dynamic>?) ?? {};
     cache[_sdkName] = {
       ...entry,
-      'current': version,
+      'current': muxiVersion,
       'latest': latest,
     };
     _saveCache(cache);
