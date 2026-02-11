@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'errors.dart';
 import 'version.dart';
@@ -274,8 +273,4 @@ class _FormationTransport {
   }
 
   void close() => _client.close();
-}
-
-extension _Let<T> on T? {
-  R? let<R>(R Function(T) fn) => this != null ? fn(this as T) : null;
 }
