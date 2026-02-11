@@ -1,6 +1,6 @@
 # MUXI Dart SDK
 
-Official Dart SDK for [MUXI](https://muxi.ai) — infrastructure for AI agents.
+Official Dart SDK for [MUXI](https://muxi.org) — infrastructure for AI agents.
 
 **Highlights**
 - Async/await with `http` package transport
