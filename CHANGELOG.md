@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## 0.20260211.1
 
 ### Added
 - `mode` parameter in `FormationConfig` for draft/live URL routing
@@ -12,3 +12,13 @@ All notable changes to this project will be documented in this file.
   - Notifies when newer SDK version available (max once per 12 hours)
   - Disable with `MUXI_SDK_VERSION_NOTIFICATION=0`
 - Console telemetry support via internal `_app` parameter
+- Example code in `example/` directory
+
+## 0.20260129.0
+
+### Added
+- Initial release
+- `ServerClient` for managing formations via HMAC authentication
+- `FormationClient` for interacting with agent runtimes
+- Support for chat, threads, memories, and tools APIs
+- Webhook signature verification

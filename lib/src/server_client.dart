@@ -1,15 +1,32 @@
 import 'dart:async';
 import 'transport.dart';
 
+/// Configuration for [ServerClient].
+///
+/// Use this to configure the MUXI server connection with HMAC authentication.
 class ServerConfig {
+  /// The base URL of the MUXI server (e.g., 'https://api.muxi.org').
   final String url;
-  final String keyId;
-  final String secretKey;
-  final int maxRetries;
-  final int timeout;
-  final bool debug;
-  final String? app;  // Internal: for Console telemetry
 
+  /// Your HMAC key ID for authentication.
+  final String keyId;
+
+  /// Your HMAC secret key for authentication.
+  final String secretKey;
+
+  /// Maximum number of retry attempts for failed requests.
+  final int maxRetries;
+
+  /// Request timeout in seconds.
+  final int timeout;
+
+  /// Enable debug logging.
+  final bool debug;
+
+  /// Internal: for Console telemetry.
+  final String? app;
+
+  /// Creates a new [ServerConfig].
   ServerConfig({
     required this.url,
     required this.keyId,
@@ -21,15 +38,36 @@ class ServerConfig {
   });
 }
 
+/// Represents a Server-Sent Event.
 class SseEvent {
+  /// The event type.
   final String event;
+
+  /// The event data payload.
   final String data;
+
+  /// Creates a new [SseEvent].
   SseEvent(this.event, this.data);
 }
 
+/// Client for managing MUXI formations via the server API.
+///
+/// Use this client to manage formations, API keys, and server status.
+/// Requires HMAC authentication.
+///
+/// ```dart
+/// final config = ServerConfig(
+///   url: 'https://api.muxi.org',
+///   keyId: 'your-key-id',
+///   secretKey: 'your-secret-key',
+/// );
+/// final client = ServerClient(config);
+/// final formations = await client.listFormations();
+/// ```
 class ServerClient {
   final Transport _transport;
 
+  /// Creates a new [ServerClient] with the given configuration.
   ServerClient(ServerConfig config) : _transport = Transport(
     baseUrl: config.url,
     keyId: config.keyId,

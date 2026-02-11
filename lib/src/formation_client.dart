@@ -6,19 +6,44 @@ import 'version.dart';
 import 'version_check.dart';
 import 'server_client.dart';
 
+/// Configuration for [FormationClient].
+///
+/// Use this to configure how to connect to a MUXI formation.
 class FormationConfig {
+  /// The formation ID to connect to.
   final String? formationId;
-  final String? url;
-  final String? serverUrl;
-  final String? baseUrl;
-  final String? adminKey;
-  final String? clientKey;
-  final int maxRetries;
-  final int timeout;
-  final bool debug;
-  final String mode;  // "live" (default) or "draft" for local dev
-  final String? app;  // Internal: for Console telemetry
 
+  /// Direct URL to the formation (alternative to formationId).
+  final String? url;
+
+  /// Server URL for the formation.
+  final String? serverUrl;
+
+  /// Base URL for API requests.
+  final String? baseUrl;
+
+  /// Admin API key for privileged operations.
+  final String? adminKey;
+
+  /// Client API key for standard operations.
+  final String? clientKey;
+
+  /// Maximum number of retry attempts for failed requests.
+  final int maxRetries;
+
+  /// Request timeout in seconds.
+  final int timeout;
+
+  /// Enable debug logging.
+  final bool debug;
+
+  /// Routing mode: "live" (default) or "draft" for local development.
+  final String mode;
+
+  /// Internal: for Console telemetry.
+  final String? app;
+
+  /// Creates a new [FormationConfig].
   FormationConfig({
     this.formationId,
     this.url,
@@ -34,9 +59,22 @@ class FormationConfig {
   });
 }
 
+/// Client for interacting with MUXI formation agents.
+///
+/// Use this client to chat with agents, manage threads, memories, and tools.
+///
+/// ```dart
+/// final config = FormationConfig(
+///   formationId: 'your-formation-id',
+///   clientKey: 'your-client-key',
+/// );
+/// final client = FormationClient(config);
+/// final response = await client.chat(agent: 'assistant', message: 'Hello!');
+/// ```
 class FormationClient {
   final _FormationTransport _transport;
 
+  /// Creates a new [FormationClient] with the given configuration.
   FormationClient(FormationConfig config) : _transport = _FormationTransport(
     baseUrl: _buildBaseUrl(config),
     adminKey: config.adminKey,

@@ -1,9 +1,14 @@
 name: muxi
 description: MUXI Dart SDK - Manage AI agent formations and interact with their runtime APIs
-version: 0.20260129.0
+version: 0.20260211.1
 repository: https://github.com/muxi-ai/muxi-dart
-homepage: https://muxi.ai
-documentation: https://docs.muxi.ai
+homepage: https://muxi.org
+documentation: https://docs.muxi.org
+topics:
+  - ai
+  - sdk
+  - agents
+  - api-client
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
