@@ -169,7 +169,7 @@ class FormationClient {
 
   // Overlord / LLM
   Future<Map<String, dynamic>?> getOverlordConfig() async => await _transport.request('GET', '/overlord');
-  Future<Map<String, dynamic>?> getOverlordPersona() async => await _transport.request('GET', '/overlord/persona');
+  Future<Map<String, dynamic>?> getOverlordSoul() async => await _transport.request('GET', '/overlord/soul');
   Future<Map<String, dynamic>?> getLlmSettings() async => await _transport.request('GET', '/llm/settings');
 
   // Triggers / SOP / Audit
