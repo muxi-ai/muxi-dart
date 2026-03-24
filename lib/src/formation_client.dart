@@ -148,6 +148,9 @@ class FormationClient {
   Future<Map<String, dynamic>?> getSchedulerJob(String jobId) async => await _transport.request('GET', '/scheduler/jobs/$jobId');
   Future<Map<String, dynamic>?> createSchedulerJob(String type, String schedule, String message, String userId) async => await _transport.request('POST', '/scheduler/jobs', body: {'type': type, 'schedule': schedule, 'message': message, 'user_id': userId});
   Future<void> deleteSchedulerJob(String jobId) async => await _transport.request('DELETE', '/scheduler/jobs/$jobId');
+  Future<Map<String, dynamic>?> updateSchedulerJob(String jobId, Map<String, dynamic> updates) async => await _transport.request('PUT', '/scheduler/jobs/$jobId', body: updates);
+  Future<Map<String, dynamic>?> pauseSchedulerJob(String jobId) async => await _transport.request('POST', '/scheduler/jobs/$jobId/pause');
+  Future<Map<String, dynamic>?> resumeSchedulerJob(String jobId) async => await _transport.request('POST', '/scheduler/jobs/$jobId/resume');
 
   // Config endpoints
   Future<Map<String, dynamic>?> getAsyncConfig() async => await _transport.request('GET', '/async');
