@@ -158,12 +158,14 @@ class Transport {
 
     final req = obj['request'] as Map<String, dynamic>?;
     final requestId = req?['id'] ?? obj['request_id'];
+    final idempotencyKey = req?['idempotency_key'];
     final ts = obj['timestamp'];
     final data = obj['data'];
 
     if (data is Map<String, dynamic>) {
       final out = Map<String, dynamic>.from(data);
       if (requestId != null) out['request_id'] ??= requestId;
+      if (idempotencyKey != null) out['idempotency_key'] ??= idempotencyKey;
       if (ts != null) out['timestamp'] ??= ts;
       return out;
     }

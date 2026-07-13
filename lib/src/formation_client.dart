@@ -6,6 +6,26 @@ import 'version.dart';
 import 'version_check.dart';
 import 'server_client.dart';
 
+/// Widgets from an `event: ui` stream frame; an empty list for other frames.
+///
+/// The runtime delivers the response envelope's optional `ui` array (options,
+/// action_link, mcp_resource widgets) as a single `event: ui` SSE frame before
+/// `event: done`. Unknown widget types should be ignored (progressive
+/// enhancement).
+List<Map<String, dynamic>> parseUiWidgets(SseEvent event) {
+  if (event.event != 'ui') return [];
+  dynamic parsed;
+  try {
+    parsed = jsonDecode(event.data);
+  } on FormatException {
+    return [];
+  }
+  if (parsed is! Map<String, dynamic>) return [];
+  final ui = parsed['ui'];
+  if (ui is! List) return [];
+  return ui.whereType<Map<String, dynamic>>().toList();
+}
+
 /// Configuration for [FormationClient].
 ///
 /// Use this to configure how to connect to a MUXI formation.
@@ -467,10 +487,12 @@ class _FormationTransport {
     }
     final req = obj['request'] as Map<String, dynamic>?;
     final requestId = req?['id'] ?? obj['request_id'];
+    final idempotencyKey = req?['idempotency_key'];
     final data = obj['data'];
     if (data is Map<String, dynamic>) {
       final out = Map<String, dynamic>.from(data);
       if (requestId != null) out['request_id'] ??= requestId;
+      if (idempotencyKey != null) out['idempotency_key'] ??= idempotencyKey;
       if (obj['timestamp'] != null) out['timestamp'] ??= obj['timestamp'];
       return out;
     }

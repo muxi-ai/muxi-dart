@@ -1,2 +1,2 @@
 /// MUXI SDK version
-const String muxiVersion = '0.20260408.0';
+const String muxiVersion = '1.0.0';
